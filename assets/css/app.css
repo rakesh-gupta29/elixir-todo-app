@@ -1,5 +1,95 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+@layer components {
+  .d {
+    @apply border-2 border-red-900 border-solid;
+  }
+  .blade-top-padding {
+    @apply pt-8 md:pt-10 lg:pt-12  xl:pt-16 2xl:pt-20  /* needs to be changed*/;
+  }
+  .blade-top-padding-sm {
+    @apply pt-4  md:pt-6  lg:pt-8 xl:pt-10 2xl:pt-14;
+  }
+  .blade-top-padding-lg {
+    @apply pt-12 md:pt-16 lg:pt-20 xl:pt-24 2xl:pt-32;
+  }
+
+  .blade-bottom-padding {
+    @apply pb-8 md:pb-10 lg:pb-12  xl:pb-16 2xl:pb-20 /* needs to be changed*/;
+  }
+  .blade-bottom-padding-sm {
+    @apply pb-4  md:pb-6  lg:pb-8 xl:pb-10 2xl:pb-14/* needs to be changed*/;
+  }
+  .blade-bottom-padding-lg {
+    @apply pb-12 md:pb-16  lg:pb-20 xl:pb-24 2xl:pb-32; /* needs to be changed*/
+  }
+
+  .blade-top-margin {
+    @apply mt-8 md:mt-10 lg:mt-12  xl:mt-16 2xl:mt-20;
+  }
+  .blade-top-margin-sm {
+    @apply mt-4  md:mt-6  lg:mt-8 xl:mt-10  2xl:mt-14;
+  }
+  .blade-top-margin-lg {
+    @apply mt-10 md:mt-12  lg:mt-16 xl:mt-20 2xl:mt-24;
+  }
+
+  .blade-bottom-margin {
+    @apply mb-8 md:mb-10 lg:mb-12  xl:mb-16 2xl:mb-20;
+  }
+  .blade-bottom-margin-sm {
+    @apply mb-4  md:mb-6  lg:mb-8 xl:mb-10 2xl:mb-14;
+  }
+  .blade-bottom-margin-lg {
+    @apply mb-10 md:mb-12  lg:mb-16 xl:mb-20 2xl:mb-24;
+  }
+
+  .w-container-sm {
+    @apply max-w-screen-2xl mx-auto  md:w-10/12 xl:w-9/12  px-3;
+  }
+  .w-container {
+    @apply max-w-screen-2xl mx-auto md:w-11/12 lg:w-10/12 px-3;
+  }
+  .w-container-lg {
+    @apply md:w-11/12 px-3 max-w-screen-2xl mx-auto;
+  }
+  .w-container-xl {
+    @apply md:w-11/12 px-3 2xl:px-12 max-w-[1920px] mx-auto;
+  }
+
+  .spaced-text {
+    word-spacing: 4px;
+  }
+  .list-style {
+    @apply md:text-lg xl:text-xl text-base;
+  }
+  .error-text {
+    @apply text-base text-red-500 font-normal mt-1;
+  }
+
+  /* btn styles */
+  .btn-primary {
+    @apply bg-brand text-light font-inter font-medium rounded-full px-6 py-2.5 hover:bg-dark transition-colors duration-150 ease-in-out focus-visible:outline-dark text-base outline-[2px] outline  border-none outline-offset-2 outline-transparent focus-visible:ring-0 focus-visible:border-none;
+  }
+  .btn-secondary {
+    @apply bg-secondary text-dark font-medium font-inter rounded-full px-6 py-2.5 hover:bg-opacity-95 transition-colors duration-150 ease-in-out focus-visible:outline-secondary text-base  outline-[2px] outline  border-none outline-offset-2 outline-transparent focus-visible:ring-0 focus-visible:border-none;
+  }
+  .btn-light {
+    @apply bg-light text-dark font-medium font-inter rounded-full px-6 py-2.5 hover:bg-opacity-90 transition-colors duration-150 ease-in-out focus-visible:outline-light text-base  outline-[2px] outline  border-none outline-offset-2 outline-transparent focus-visible:ring-0 focus-visible:border-none;
+  }
+}
+
+/* gradients */
+
+.footer-gradient {
+  background-image: radial-gradient(100% 120% at center 0, #001240, #030014);
+}
+
+a {
+  @apply font-medium text-blue-600 dark:text-blue-500 hover:underline;
+}

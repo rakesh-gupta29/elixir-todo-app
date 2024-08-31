@@ -1,6 +1,8 @@
 defmodule PortalWeb.Router do
   use PortalWeb, :router
 
+  alias PortalWeb.AuthClients
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -40,5 +42,13 @@ defmodule PortalWeb.Router do
       live_dashboard "/dashboard", metrics: PortalWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+  end
+
+  # clients
+  scope "/app" do
+    pipe_through :browser
+    live "/register", AuthClients.RegisterLive, :new
+    live "/login", AuthClients.LoginLive, :new
+    # live "/reset-password", AuthClients.ResetPasswordLive, :new
   end
 end
