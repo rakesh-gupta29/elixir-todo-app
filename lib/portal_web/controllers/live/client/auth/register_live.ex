@@ -37,7 +37,10 @@ defmodule PortalWeb.AuthClients.RegisterLive do
     case Clients.register_client(client_params) do
       {:ok, client} ->
         {:ok, _} =
-          {:ok, socket |> put_flash(:info, "will send the email later")}
+          Clients.deliver_email_for_account_confirmation(
+            client,
+            &url(~p"/app/confirm/#{&1}")
+          )
 
         changeset = Clients.create_client_account_changeset(client)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
@@ -46,6 +49,10 @@ defmodule PortalWeb.AuthClients.RegisterLive do
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end
   end
+
+  # triggers the save event which creates the user
+  # then a post req is made to the /login path which will
+  # login the user.
 
   def render(assigns) do
     ~H"""
@@ -73,7 +80,6 @@ defmodule PortalWeb.AuthClients.RegisterLive do
         </:actions>
       </.simple_form>
 
-      <a href="/app/reset-password">forgot password</a>
       <div class="py-10">
         <a href="/app/login">have an account</a>
       </div>

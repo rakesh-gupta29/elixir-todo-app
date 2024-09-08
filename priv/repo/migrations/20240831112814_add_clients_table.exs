@@ -34,7 +34,7 @@ defmodule Portal.Repo.Migrations.AddClientsTable do
 
     # session and authentication tokens for the accounts.
     create table(:clients_tokens) do
-      add :user_id, references(:clients, on_delete: :delete_all), null: false
+      add :client_id, references(:clients, on_delete: :delete_all), null: false
       add :token, :binary, null: false
       add :context, :string, null: false
       add :sent_to, :string
@@ -42,7 +42,7 @@ defmodule Portal.Repo.Migrations.AddClientsTable do
       timestamps(type: :utc_datetime, updated_at: false)
     end
 
-    create index(:clients_tokens, [:user_id])
+    create index(:clients_tokens, [:client_id])
     create unique_index(:clients_tokens, [:context, :token])
   end
 end

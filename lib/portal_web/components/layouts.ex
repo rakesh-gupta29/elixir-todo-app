@@ -11,4 +11,6 @@ defmodule PortalWeb.Layouts do
   use PortalWeb, :html
 
   embed_templates "layouts/*"
+  embed_templates "partials/molecules/*"
+  embed_templates "partials/organisms/*"
 end

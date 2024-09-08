@@ -10,7 +10,7 @@ defmodule Portal.Clients.Client do
     field :email, :string
 
     field :password, :string, virtual: true, redact: true
-    field :hashed_password, :string, redact: true
+    field :hashed_password, :string, redact: false
     field :current_password, :string, virtual: true, redact: true
 
     field :confirmed_at, :utc_datetime
@@ -41,6 +41,11 @@ defmodule Portal.Clients.Client do
     |> validate_password(opts)
   end
 
+  def confirm_client_changeset(client) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    change(client, confirmed_at: now, is_verified: true)
+  end
+
   defp validate_name(changeset) do
     changeset
     |> validate_required([:name])
@@ -58,12 +63,12 @@ defmodule Portal.Clients.Client do
   defp validate_password(changeset, opts) do
     changeset
     |> validate_required([:password])
-    |> validate_length(:password, min: 12, max: 72)
-    |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
-    |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
-    |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/,
-      message: "at least one digit or punctuation character"
-    )
+    |> validate_length(:password, min: 2, max: 72)
+    # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
+    # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
+    # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/,
+    #   message: "at least one digit or punctuation character"
+    # )
     |> maybe_hash_password(opts)
   end
 
@@ -99,5 +104,56 @@ defmodule Portal.Clients.Client do
     else
       changeset
     end
+  end
+
+  @doc """
+  Verifies the password.
+
+  If there is no client or the client doesn't have a password, we call
+  `Bcrypt.no_user_verify/0` to avoid timing attacks.
+  """
+  def valid_password_for_user?(%Portal.Clients.Client{hashed_password: hashed_password}, password)
+      when is_binary(hashed_password) and byte_size(password) > 0 do
+    Bcrypt.verify_pass(password, hashed_password)
+  end
+
+  # if the client struct is not valid, then the first parameter will not be matching.
+  def valid_password_for_user?(_, _) do
+    Bcrypt.no_user_verify()
+    false
+  end
+
+  @doc """
+    it accepts the changeset for user and field for current password.
+    it will then check the password given by user to check against the
+    password in the db. else, will apppend an error to the changeset.
+  """
+  def validate_current_password_for_user(changeset, current_password) do
+    changeset = cast(changeset, %{current_password: current_password}, [:current_password])
+
+    if valid_password_for_user?(changeset.data, current_password) do
+      changeset
+    else
+      add_error(changeset, :current_password, "current password is wrong")
+    end
+  end
+
+  @doc """
+    Profile updates for client.
+     ## Options
+
+    * `:hash_password` - Hashes the password so it can be stored securely
+      in the database and ensures the password field is cleared to prevent
+      leaks in the logs. If password hashing is not needed and clearing the
+      password field is not desired (like when using this changeset for
+      validations on a LiveView form), this option can be set to `false`.
+      Defaults to `true`.
+
+  """
+  def password_changeset(client, attrs, opts \\ []) do
+    client
+    |> cast(attrs, [:password])
+    |> validate_confirmation(:password, message: "passwords do not match")
+    |> validate_password(opts)
   end
 end

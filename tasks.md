@@ -13,6 +13,14 @@
 - what is the difference between the context and the module. and how do they intertwine.
 - meaning of temporary assigns and it's use case.
 - can handle_event func in the liveview be private?
+- what is fixation attacks in the auth.
+- what can be some good things to put into the client when the session is cleared.
+- why do we need the refresh token in the auth flow.
+- byte_size(password) > 0 what can this function be used for.
+- what is the difference between the normal html files that are being rendered and the live_view files
+  in the way they render.
+- what is the flash data which can be accessed via Flash.get and when should we use this
+- read more regarding assigns v/s temporary_assigns and when should we use what
 
 ## Improvements
 
