@@ -36,7 +36,6 @@ defmodule Portal.Clients do
     |> Repo.update()
   end
 
-
   @doc """
   Resets the client password.
   Not responsible for checking that the old password of

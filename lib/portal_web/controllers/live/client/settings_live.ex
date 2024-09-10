@@ -6,7 +6,9 @@ defmodule PortalWeb.ClientLive.SettingLive do
   use PortalWeb, :live_view_client
 
   def mount(_params, _session, socket) do
-    {:ok, socket |> assign(:view_mode, false)}
+    client = socket.assigns.current_client
+
+    {:ok, socket |> assign(:view_mode, false) |> assign(:client, client)}
   end
 
   def handle_event("toggle-mode", _params, socket) do
@@ -20,7 +22,7 @@ defmodule PortalWeb.ClientLive.SettingLive do
       <%= if @view_mode do %>
         view mode
       <% else %>
-        edit mode
+        <%= @client.email %>
       <% end %>
     </div>
     """

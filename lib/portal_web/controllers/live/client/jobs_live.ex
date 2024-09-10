@@ -3,8 +3,6 @@ defmodule PortalWeb.ClientLive.JobsLive do
   profile page for clients.
   they can set up their profile along with
   """
-  alias Portal.Clients
-  import PortalWeb.UI.Button
 
   use PortalWeb, :live_view_client
 

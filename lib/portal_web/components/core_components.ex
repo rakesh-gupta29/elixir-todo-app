@@ -20,8 +20,6 @@ defmodule PortalWeb.CoreComponents do
   alias Phoenix.LiveView.JS
   import PortalWeb.Gettext
 
-  import PortalWeb.UI.Button
-
   @doc """
   Renders a modal.
 

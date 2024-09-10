@@ -71,25 +71,6 @@ defmodule Portal.Clients.Client do
     |> validate_required([:name, :email])
   end
 
-  defp validate_year(changeset, field) do
-    current_year = Date.utc_today().year
-
-    changeset
-    |> validate_change(field, fn _, year_string ->
-      if String.match?(year_string, ~r/^\d+$/) do
-        year = String.to_integer(year_string)
-
-        if year >= 1800 and year <= current_year do
-          []
-        else
-          [{field, "must be between 1800 and #{current_year}"}]
-        end
-      else
-        [{field, "must be a valid year (numeric only)"}]
-      end
-    end)
-  end
-
   def validate_website(changeset, field) do
     changeset
     |> validate_change(field, fn _, website ->
