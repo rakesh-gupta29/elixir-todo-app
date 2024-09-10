@@ -10,10 +10,9 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}></script>
   </head>
-  <body class="pt-20 pb-10">
+  <body >
     
-    <.form_heading />
-
+    <.header current_profile={@current_client} />
 
     <main>
         <div><.flash_group flash={@flash} /> <%= @inner_content %></div>

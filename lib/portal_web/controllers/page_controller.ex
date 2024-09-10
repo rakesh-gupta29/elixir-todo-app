@@ -50,6 +50,10 @@ defmodule PortalWeb.PageController do
     render_html_page(conn, :terms_and_conditions, %{title: "terms and conditions"})
   end
 
+  def companies(conn, _params) do
+    render_html_page(conn, :companies, %{title: "list of companies who are actively hiring"})
+  end
+
   def help_center(conn, _params) do
     render_html_page(conn, :help_center, %{title: "help center"})
   end

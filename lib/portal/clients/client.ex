@@ -10,7 +10,7 @@ defmodule Portal.Clients.Client do
     field :email, :string
 
     field :password, :string, virtual: true, redact: true
-    field :hashed_password, :string, redact: false
+    field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
 
     field :confirmed_at, :utc_datetime
@@ -39,6 +39,19 @@ defmodule Portal.Clients.Client do
     |> validate_name()
     |> validate_email(opts)
     |> validate_password(opts)
+    |> validate_confirmation(:password, message: "Passwords do not match")
+  end
+
+  def basic_profile_changeset(client, attrs) do
+    client
+    |> cast(attrs, [:name, :description, :website, :tagline, :founded_year])
+    |> validate_required([:name, :tagline, :description, :website, :founded_year])
+    |> validate_length(:tagline, min: 3, max: 150, message: "between 3 and 150 characters")
+    |> validate_length(:description,
+      min: 30,
+      max: 1000,
+      message: "between 30 and 1000 characters"
+    )
   end
 
   def confirm_client_changeset(client) do
@@ -52,6 +65,46 @@ defmodule Portal.Clients.Client do
     |> validate_length(:name, min: 2, max: 80, message: "should be between 2 and 80 characters")
   end
 
+  def something(client, attrs) do
+    client
+    |> cast(attrs, [:name, :email])
+    |> validate_required([:name, :email])
+  end
+
+  defp validate_year(changeset, field) do
+    current_year = Date.utc_today().year
+
+    changeset
+    |> validate_change(field, fn _, year_string ->
+      if String.match?(year_string, ~r/^\d+$/) do
+        year = String.to_integer(year_string)
+
+        if year >= 1800 and year <= current_year do
+          []
+        else
+          [{field, "must be between 1800 and #{current_year}"}]
+        end
+      else
+        [{field, "must be a valid year (numeric only)"}]
+      end
+    end)
+  end
+
+  def validate_website(changeset, field) do
+    changeset
+    |> validate_change(field, fn _, website ->
+      case valid_url?(website) do
+        true -> []
+        false -> [{field, "invalid URL"}]
+      end
+    end)
+  end
+
+  defp valid_url?(website) do
+    url_regex = ~r/^(https?:\/\/)?([a-zA-Z0-9_\-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9_\-\.]*)*\/?$/
+    Regex.match?(url_regex, website)
+  end
+
   defp validate_email(changeset, opts) do
     changeset
     |> validate_required([:email])
@@ -62,13 +115,13 @@ defmodule Portal.Clients.Client do
 
   defp validate_password(changeset, opts) do
     changeset
-    |> validate_required([:password])
+    |> validate_required([:password], message: "Password is required")
     |> validate_length(:password, min: 2, max: 72)
-    # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
-    # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
-    # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/,
-    #   message: "at least one digit or punctuation character"
-    # )
+    |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
+    |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
+    |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/,
+      message: "at least one digit or punctuation character"
+    )
     |> maybe_hash_password(opts)
   end
 

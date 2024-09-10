@@ -26,6 +26,17 @@ defmodule Portal.Clients do
     Client.password_changeset(client, attrs, hash_password: true)
   end
 
+  def update_profile_basics_changeset(client, attrs \\ %{}) do
+    Client.basic_profile_changeset(client, attrs)
+  end
+
+  def update_profile_basics(%Client{} = client, params) do
+    client
+    |> Client.basic_profile_changeset(params)
+    |> Repo.update()
+  end
+
+
   @doc """
   Resets the client password.
   Not responsible for checking that the old password of

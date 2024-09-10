@@ -3,17 +3,19 @@ defmodule PortalWeb.AuthClients.RegisterLive do
   register for companies
   """
 
-  use PortalWeb, :live_view
+  use PortalWeb, :live_view_auth
 
   alias Portal.Clients.Client
   alias Portal.Clients
+  import PortalWeb.UI.Button
 
   def mount(_params, _session, socket) do
     changeset = Clients.create_client_account_changeset(%Client{})
 
     {:ok,
      socket
-     |> assign(:title, "register - company ")
+     |> assign(:password_visible, false)
+     |> assign(:title, "Get started with free trial")
      |> assign(trigger_submit: false, check_errors: false)
      |> assign_form(changeset)}
   end
@@ -56,10 +58,11 @@ defmodule PortalWeb.AuthClients.RegisterLive do
 
   def render(assigns) do
     ~H"""
-    <div>
-      <h1><%= @title %></h1>
+    <div class=" max-w-md mx-auto  px-3 md:w-11/12 ">
+      <span class="text-2xl text-center px-4 block font-semibold text-brand"><%= @title %></span>
       <.simple_form
         for={@form}
+        novalidate
         id="registration_form"
         phx-submit="save"
         phx-change="validate"
@@ -71,17 +74,64 @@ defmodule PortalWeb.AuthClients.RegisterLive do
           Oops, something went wrong! Please check the errors below.
         </.error>
 
-        <.input field={@form[:name]} type="text" label="Name" required />
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+        <.input placeholder="John Doe" field={@form[:name]} type="text" label="Name" required />
+        <.input
+          field={@form[:email]}
+          placeholder="example@gamil.com"
+          type="email"
+          label="Email"
+          required
+        />
 
+        <.input
+          field={@form[:password]}
+          type={if @password_visible, do: "text", else: "password"}
+          label="Password"
+          placeholder="*****"
+          required
+        />
+
+        <.input
+          field={@form[:password_confirmation]}
+          type={if @password_visible, do: "text", else: "password"}
+          label="Confirm Password"
+          placeholder="******"
+          required
+        />
         <:actions>
           <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
         </:actions>
       </.simple_form>
 
-      <div class="py-10">
-        <a href="/app/login">have an account</a>
+      <div class="py-6 text-center">
+        <span>
+          Already have an account?
+          <a
+            href="/app/login"
+            class=" text-inherit underline font-semibold px-2 underline-offset-4 decoration-from-font"
+          >
+            Log in
+          </a>
+        </span>
+      </div>
+
+      <div class="text-center">
+        <span class="text-sm">
+          By continuing, you agree to our <br />
+          <a
+            href="/terms-and-conditions#terms"
+            class=" text-inherit underline font-normal px-2 underline-offset-4 decoration-from-font hover:text-brand"
+          >
+            Terms of services
+          </a>
+          and
+          <a
+            href="/terms-and-conditions#privacy"
+            class=" text-inherit underline font-normal px-2 underline-offset-4 decoration-from-font hover:text-brand"
+          >
+            Privacy policies
+          </a>
+        </span>
       </div>
     </div>
     """

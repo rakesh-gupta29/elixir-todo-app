@@ -1,1 +1,115 @@
-<header class="d sticky top-0"></header>
+
+
+<header class={"bg-white sticky top-0 border-b-1 border-solid border-brand/10 #{if  @current_profile, do: "bg-brand/10", else: 'bg-white'}"}>
+  <div class="w-container flex justify-between items-center py-3 gap-7  ">
+    <div class={if @current_profile, do: "basis-20", else: "basis-60"}>
+      <a href="/">
+        <img loading="eager" src={~p"/images/logo.svg"} class="h-12" alt="Logo for
+      the portal" />
+      </a>
+    </div>
+
+    <%= if @current_profile == nil  do%>
+      <div class="flex-0">
+        <ul class="flex justify-center gap-10">
+          <li>
+            <a
+              href="/about"
+              class="text-dark text-opacity-70 font-inter hover:text-opacity-100 text-sm tracking-wide transition-colors duration-150 ease-in-out"
+            >
+              About
+            </a>
+          </li> 
+          <li>
+            <a
+              href="/companies"
+              class="text-dark text-opacity-70 font-inter hover:text-opacity-100 text-sm tracking-wide transition-colors duration-150 ease-in-out"
+            >
+              Companies
+            </a>
+          </li>
+          <li>
+            <a
+              href="/trending"
+              class="text-dark text-opacity-70 font-inter hover:text-opacity-100 text-sm tracking-wide transition-colors duration-150 ease-in-out"
+            >
+              Trending
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/pricing"
+              class="text-dark text-opacity-70 font-inter hover:text-opacity-100 text-sm tracking-wide transition-colors duration-150 ease-in-out"
+            >
+              Pricing
+            </a>
+          </li>
+        </ul>
+      </div>
+    <% else %>
+ <div class="flex-1 ">
+  <ul class="flex gap-10">
+    <li>
+      <a
+          href="/app"
+          class="text-dark text-opacity-70 font-inter hover:text-opacity-100 text-sm tracking-wide transition-colors duration-150 ease-in-out"
+      >
+     Home
+      </a>
+  </li>
+  <li>
+      <a
+          href="/app/jobs"
+          class="text-dark text-opacity-70 font-inter hover:text-opacity-100 text-sm tracking-wide transition-colors duration-150 ease-in-out"
+      >
+          Jobs
+      </a>
+  </li>
+  <li>
+      <a
+          href="/app/profile"
+          class="text-dark text-opacity-70 font-inter hover:text-opacity-100 text-sm tracking-wide transition-colors duration-150 ease-in-out"
+      >
+          Settings
+      </a>
+  </li>
+</ul>
+  
+ </div>
+    <% end %>
+    <%= if @current_profile do%>
+   <div class="flex gap-6 items-center">
+    <ul class="flex justify-center gap-10">
+      <li>
+        <a
+          href="/app/help"
+          class="text-dark text-opacity-70 font-inter hover:text-opacity-100 text-sm tracking-wide transition-colors duration-150 ease-in-out"
+        >
+        Help
+        </a>
+      </li>
+      </ul>
+      <a href="/app">
+        <div class="relative inline-flex items-center justify-center max-w-[36px] min-w-[39px] max-h-[36px] min-h-[36px] overflow-hidden bg-brand/100 ring-1 ring-offset-2 ring-brand rounded-full">
+          <span class="font-medium text-base text-gray-600 dark:text-gray-300 uppercase"><%=  if @current_profile.email, do: String.at( @current_profile.email, 0), else: "" %></span>
+        </div>
+      </a>
+      <ul>
+        <li>
+            <.button variant="outline" size="sm">
+                Log out
+            </.button>
+        </li>
+    
+    </ul>
+   </div>
+    <% else %>
+      <div class="space-x-4 basis-60 flex justify-end">
+        <.anchor variant="secondary" size="sm"  href="/candidate/register"> Find Jobs </.anchor>
+        <.anchor variant="primary" size="sm"  href="/app/register"> Hire Talents </.anchor>
+      </div>
+    <% end %>
+
+  </div>
+</header>

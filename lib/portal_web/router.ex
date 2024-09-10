@@ -2,6 +2,7 @@ defmodule PortalWeb.Router do
   use PortalWeb, :router
 
   alias PortalWeb.AuthClients
+  alias PortalWeb.AuthCandidate
   alias PortalWeb.ClientSessionController
   alias PortalWeb.ClientLive
 
@@ -61,6 +62,22 @@ defmodule PortalWeb.Router do
     post "/login", ClientSessionController, :create
   end
 
+  scope "/candidate" do
+    pipe_through [:browser, :redirect_if_client_is_authenticated]
+
+    # live session will manage the values of session for the scope
+    # define the hooks to be used using the parameters.
+    # live_session :redirect_if_client_is_authenticated,
+    #   on_mount: [{PortalWeb.ClientAuth, :redirect_if_client_is_authenticated}] do
+    live "/register", AuthCandidate.RegisterLive, :new
+    # live "/login", AuthClients.LoginLive, :new
+    # live "/recover", AuthClients.RecoverAccountLive, :new
+    # live "/recover/:token", AuthClients.RecoverAccountFromTokenLive, :new
+    # end
+
+    # post "/login", ClientSessionController, :create
+  end
+
   # Positive list for authentication.
   # client can access this  ONLY if he is authenticated
   scope "/app" do
@@ -69,7 +86,9 @@ defmodule PortalWeb.Router do
     live_session :require_authenticated_client,
       on_mount: [{PortalWeb.ClientAuth, :ensure_authenticated}] do
       live "/", ClientLive.HomeLive, :new
-      live "/profile", ClientLive.ProfileLive, :new
+      live "/help", ClientLive.SupportTicketLive, :new
+      live "/jobs", ClientLive.JobsLive, :new
+      live "/profile", ClientLive.SettingLive, :new
     end
   end
 
@@ -84,8 +103,10 @@ defmodule PortalWeb.Router do
     get "/pricing", PortalWeb.PageController, :pricing
     get "/faq", PortalWeb.PageController, :faq
     get "/terms-and-conditions", PortalWeb.PageController, :terms_and_conditions
+    get "/companies", PortalWeb.PageController, :companies
     get "/help-center", PortalWeb.PageController, :help_center
     live "/contact", PortalWeb.Live.ContactLive, :new
+    live "/trending", PortalWeb.Live.Jobs.TrendingLive, :new
 
     # instructions for sending and receiving the email verification token
     live_session :current_client,

@@ -3,7 +3,7 @@ defmodule PortalWeb.ClientLive.HomeLive do
   login for companies
   """
 
-  use PortalWeb, :live_view
+  use PortalWeb, :live_view_client
 
   def mount(_params, _session, socket) do
     {:ok, socket |> assign(:title, "homepage of the client")}
@@ -11,25 +11,7 @@ defmodule PortalWeb.ClientLive.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <div>
-      <h1><%= @current_client.email %></h1>
-      <h1><%= @current_client.confirmed_at %></h1>
-
-      <%= if @current_client.is_verified do %>
-        <p>true</p>
-      <% else %>
-        <p>false</p>
-      <% end %>
-
-      <button type="button" class="test-btn" phx-click="send-confirmation-email">
-        send the email to confirm the account
-      </button>
-
-      <.link href={~p"/app/profile"}>
-        profile page
-      </.link>
-      <h1><%= @title %></h1>
-    </div>
+    <span>home page for the client </span>
     """
   end
 

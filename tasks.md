@@ -20,7 +20,9 @@
 - what is the difference between the normal html files that are being rendered and the live_view files
   in the way they render.
 - what is the flash data which can be accessed via Flash.get and when should we use this
+- write test cases for common functions like url validation and other things.
 - read more regarding assigns v/s temporary_assigns and when should we use what
+- improve the logic to validate the year in the profile form
 
 ## Improvements
 
@@ -32,3 +34,6 @@
 - account profile management
 - microsite rendering along with details
 - jobs module (account can create the jobs and will be listed on the microsite)
+- create a feature of inbox for the clients. so that they can see what updates they have got.
+- jp can send an email to the client directly from the profile page
+-

@@ -6,6 +6,7 @@ defmodule PortalWeb.AuthClients.ClientConfirmationLive do
   """
 
   use PortalWeb, :live_view
+  import PortalWeb.UI.Button
 
   alias Portal.Clients
 

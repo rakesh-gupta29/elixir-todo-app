@@ -5,7 +5,8 @@ defmodule PortalWeb.AuthClients.RecoverAccountFromTokenLive do
   methods to recover the account
   """
 
-  use PortalWeb, :live_view
+  use PortalWeb, :live_view_auth
+  import PortalWeb.UI.Button
 
   alias Portal.Clients
 
@@ -61,7 +62,10 @@ defmodule PortalWeb.AuthClients.RecoverAccountFromTokenLive do
 
   def render(assigns) do
     ~H"""
-    <div>
+    <div class=" max-w-md mx-auto  px-3 md:w-11/12">
+      <span class="text-2xl text-center px-4 block font-semibold text-brand">
+        Reset your password here
+      </span>
       <.simple_form
         for={@form}
         id="recover_account_from_password"
@@ -72,19 +76,32 @@ defmodule PortalWeb.AuthClients.RecoverAccountFromTokenLive do
           Oops, something went wrong! Please check the errors below.
         </.error>
 
-        <.input field={@form[:password]} type="password" label="New password" required />
+        <.input
+          field={@form[:password]}
+          type="password"
+          placeholder="*********"
+          label="New password"
+          required
+        />
         <.input
           field={@form[:password_confirmation]}
           type="password"
           label="Confirm new password"
           required
+          placeholder="*********"
         />
         <:actions>
-          <.button phx-disable-with="Resetting..." class="w-full">Reset Password</.button>
+          <.button phx-disable-with="Resetting..." class="w-full">Update account password</.button>
         </:actions>
       </.simple_form>
-      <p class="text-center text-sm mt-4">
-        <.link href={~p"/app/register"}>Register</.link> | <.link href={~p"/app/login"}>Log in</.link>
+      <p class="text-center pt-4 text-sm mt-4">
+        <.link href={~p"/app/register"} class="text-base font-medium text-inherit underline-offset-4">
+          Register
+        </.link>
+        <span class="px-3">|</span>
+        <.link class="text-base font-medium text-inherit underline-offset-4" href={~p"/app/login"}>
+          Log in
+        </.link>
       </p>
     </div>
     """
