@@ -49,9 +49,30 @@ defmodule Portal.Clients.Client do
     |> validate_length(:tagline, min: 3, max: 150, message: "between 3 and 150 characters")
     |> validate_length(:description,
       min: 30,
-      max: 1000,
-      message: "between 30 and 1000 characters"
+      max: 200,
+      message: "between 30 and 200 characters"
     )
+    |> validate_website(:website)
+    |> validate_year(:founded_year)
+  end
+
+  defp validate_year(changeset, field) do
+    current_year = Date.utc_today().year
+
+    changeset
+    |> validate_change(field, fn _, year_string ->
+      if String.match?(year_string, ~r/^\d+$/) do
+        year = String.to_integer(year_string)
+
+        if year >= 1800 and year <= current_year do
+          []
+        else
+          [{field, "must be between 1800 and #{current_year}"}]
+        end
+      else
+        [{field, "must be a valid year (numeric only)"}]
+      end
+    end)
   end
 
   def confirm_client_changeset(client) do
@@ -71,7 +92,7 @@ defmodule Portal.Clients.Client do
     |> validate_required([:name, :email])
   end
 
-  def validate_website(changeset, field) do
+  defp validate_website(changeset, field) do
     changeset
     |> validate_change(field, fn _, website ->
       case valid_url?(website) do

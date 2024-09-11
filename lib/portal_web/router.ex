@@ -88,7 +88,8 @@ defmodule PortalWeb.Router do
       live "/", ClientLive.HomeLive, :new
       live "/help", ClientLive.SupportTicketLive, :new
       live "/jobs", ClientLive.JobsLive, :new
-      live "/profile", ClientLive.SettingLive, :new
+      live "/profile", ClientLive.ProfileLive, :new
+      live "/profile/basics/edit", ClientLive.ProfileLive, :edit_profile_basics
     end
   end
 

@@ -8,12 +8,4 @@ defmodule PortalWeb.ClientLive.SupportTicketLive do
   def mount(_params, _session, socket) do
     {:ok, socket |> assign(:title, "homepage of the client")}
   end
-
-  def render(assigns) do
-    ~H"""
-    <div>
-      support ticket
-    </div>
-    """
-  end
 end

@@ -21,6 +21,17 @@ defmodule PortalWeb.CoreComponents do
   import PortalWeb.Gettext
 
   @doc """
+    renders a chip prompting that more features are coming soon
+  """
+  def features_coming(assigns) do
+    ~H"""
+    <div class="bg-brand/10 text-gray-800 overflow-hidden border-1 border-solid  text-white p-4 rounded-lg">
+      we will be adding more features soon!
+    </div>
+    """
+  end
+
+  @doc """
   Renders a modal.
 
   ## Examples
@@ -41,6 +52,7 @@ defmodule PortalWeb.CoreComponents do
   attr :show, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
   slot :inner_block, required: true
+  attr :modal_title, :string, required: false, default: ""
 
   def modal(assigns) do
     ~H"""
@@ -67,17 +79,18 @@ defmodule PortalWeb.CoreComponents do
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
+              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-6 shadow-lg ring-1 transition"
             >
-              <div class="absolute top-6 right-5">
+              <div class="flex justify-between gap-6">
+                <span class="flex-1 line-clamp-1"><%= @modal_title %></span>
                 <button
-                  phx-click={JS.exec("data-cancel", to: "##{@id}")}
-                  type="button"
-                  class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
-                  aria-label={gettext("close")}
-                >
-                  <.icon name="hero-x-mark-solid" class="h-5 w-5" />
-                </button>
+                phx-click={JS.exec("data-cancel", to: "##{@id}")}
+                type="button"
+                class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
+                aria-label={gettext("close")}
+              >
+                <.icon name="hero-x-mark-solid" class="h-5 w-5" />
+              </button>
               </div>
               <div id={"#{@id}-content"}>
                 <%= render_slot(@inner_block) %>
