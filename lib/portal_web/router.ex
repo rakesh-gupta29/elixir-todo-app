@@ -90,6 +90,8 @@ defmodule PortalWeb.Router do
       live "/jobs", ClientLive.JobsLive, :new
       live "/profile", ClientLive.ProfileLive, :new
       live "/profile/basics/edit", ClientLive.ProfileLive, :edit_profile_basics
+      live "/profile/socials/add", ClientLive.ProfileLive, :add_social_profile
+      live "/profile/socials/:id/edit", ClientLive.ProfileLive, :edit_social_profile
     end
   end
 

@@ -1,9 +1,10 @@
 # lib/portal_web/live/client_live/profile_live.ex
 
 defmodule PortalWeb.ClientLive.ProfileLive do
+  alias PortalWeb.AuthClients.ClientConfirmationInstructionsLive
   use PortalWeb, :live_view_client
   alias Portal.Clients
-  alias Portal.Clients.Client
+  import PortalWeb.UI.Button
 
   def mount(_params, _session, socket) do
     client = socket.assigns.current_client
@@ -12,7 +13,9 @@ defmodule PortalWeb.ClientLive.ProfileLive do
      socket
      |> assign(:view_mode, false)
      |> assign(:with_modal, false)
+     |> assign(:social_profile, nil)
      |> assign(:client, client)
+     |> assign(:social_profile_warning_modal, false)
      |> assign(:page_title, "")}
   end
 
@@ -29,68 +32,225 @@ defmodule PortalWeb.ClientLive.ProfileLive do
     |> open_modal()
   end
 
+  def apply_action(socket, :add_social_profile, _params) do
+    socket
+    |> open_modal()
+  end
+
+  def apply_action(socket, :edit_social_profile, %{"id" => id}) do
+    client = socket.assigns.client
+
+    social_profile =
+      Enum.find(client.social_profiles, fn profile -> profile.id == id end)
+
+    if social_profile do
+      socket
+      |> assign(:social_profile, social_profile)
+      |> open_modal()
+    else
+      socket
+      |> put_flash(:error, "Social profile not found")
+      |> push_patch(to: ~p"/app/profile/socials/add")
+    end
+  end
+
+  def handle_event("delete_social_profile", %{"id" => id, "name" => name}, socket) do
+    {:noreply,
+     socket
+     |> assign(:social_profile_warning_modal, true)
+     |> assign(:social_profile_id, id)
+     |> assign(:social_profile_name, name)}
+  end
+
+  def handle_event("cancel_profile_delete", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:social_profile_warning_modal, false)
+     |> assign(:social_profile_id, "")
+     |> assign(:social_profile_name, "")}
+  end
+
+  def handle_event("confirm_profile_delete", %{"id" => id}, socket) do
+    case Clients.delete_social_profile(socket.assigns.client, id) do
+      {:ok, updated_client} ->
+        {
+          :noreply,
+          socket
+          |> assign(:social_profile_warning_modal, false)
+          |> assign(:social_profile_id, "")
+          |> assign(:client, updated_client)
+        }
+
+      {:error, _} ->
+        {
+          :noreply,
+          socket
+          |> assign(:social_profile_warning_modal, false)
+          |> assign(:social_profile_id, "")
+          |> assign(:social_profile_name, "")
+        }
+    end
+  end
+
   defp open_modal(socket) do
     socket
     |> assign(:with_modal, true)
   end
 
   def form_component_for_action(:edit_profile_basics), do: PortalWeb.ClientLive.ProfileBasics.Edit
+
+  def form_component_for_action(:add_social_profile),
+    do: PortalWeb.ClientLive.ClientSocialProfiles.Add
+
+  def form_component_for_action(:edit_social_profile),
+    do: PortalWeb.ClientLive.ClientSocialProfiles.Edit
+
   def form_component_for_action(_), do: PortalWeb.ClientLive.ProfileBasics.Edit
 
   def render(assigns) do
     ~H"""
-    <div class="bg-brand/5 pt-20 pb-10">
-      <div class="w-container grid grid-cols-3">
-        <div class="col-span-1">
-          <div class="sticky top-0 grid gap-2 pt-6">
-            <span class="text-2xl font-semibold text-brand">Profile details</span>
-            <span>Basic details regarding your profile and company</span>
+    <div class="pb-20 bg-brand/5">
+      <div class=" pt-20 pb-10">
+        <div class="w-container grid grid-cols-3">
+          <div class="col-span-1">
+            <div class="sticky top-24  pb-10 grid gap-2 pt-6">
+              <span class="text-2xl font-semibold text-brand">Profile details</span>
+              <span>Basic details regarding your profile and company</span>
+            </div>
           </div>
-        </div>
-        <div class="col-span-2 border-1 border-solid bg-white border-brand/10 rounded-xl overflow-hidden">
-          <div class="flex items-center justify-between gap-3 p-4 bg-brand/10">
-            <span class="text-xl font-medium text-brand">Basics</span>
-            <a
-              href="/app/profile/basics/edit"
-              class="hover:bg-brand/10 stroke-brand transition-all duration-150 ease-in-out p-1 h-8 w-8 grid place-content-center rounded-full"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="inherit"
-                class="size-4"
+          <div class="col-span-2 border-1 border-solid bg-white border-brand/10 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between gap-3 p-4 bg-brand/10">
+              <span class="text-xl font-medium text-brand">Basics</span>
+              <a
+                href="/app/profile/basics/edit"
+                class="hover:bg-brand/10 stroke-brand transition-all duration-150 ease-in-out p-1 h-8 w-8 grid place-content-center rounded-full"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-                />
-              </svg>
-            </a>
-          </div>
-          <div class="p-6 ">
-            <.live_component
-              module={PortalWeb.ClientLive.ProfileBasics.Show}
-              client={@client}
-              id={@client.id || :new}
-              title={@page_title}
-            />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="inherit"
+                  class="size-4"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                  />
+                </svg>
+              </a>
+            </div>
+            <div class="p-6 ">
+              <.live_component
+                module={PortalWeb.ClientLive.ProfileBasics.Show}
+                client={@client}
+                id={:edit_profile_basics}
+                title={@page_title}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      <.modal :if={@with_modal} id="client_profile_modal" show on_cancel={JS.patch(~p"/app/profile")}>
-        <.live_component
-          module={form_component_for_action(@live_action)}
-          id={@client.id || :new}
-          title={@page_title}
-          action={@live_action}
-          client={@client}
-        />
-      </.modal>
+      <div class="pt-20 pb-10">
+        <div class="w-container grid grid-cols-3">
+          <div class="col-span-1">
+            <div class="sticky top-24 grid gap-2 pb-10 pt-6">
+              <span class="text-2xl font-semibold text-brand">Social Profiles</span>
+              <span>Enlist the social profies connected with the account.</span>
+            </div>
+          </div>
+          <div class="col-span-2 border-1 border-solid bg-white border-brand/10 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between gap-3 p-4 bg-brand/10">
+              <span class="text-xl font-medium text-brand">Social Profiles</span>
+              <a
+                href="/app/profile/socials/add"
+                class="hover:bg-brand/10 stroke-brand transition-all duration-150 ease-in-out p-1 h-8 w-8 grid place-content-center rounded-full"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-6"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </a>
+            </div>
+            <div class="p-6 ">
+              <.live_component
+                module={PortalWeb.ClientLive.SocialProfiles.Show}
+                client={@client}
+                id={:social_profiles_list}
+                title={@page_title}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <.modal :if={@with_modal} id="client_profile_modal" show on_cancel={JS.patch(~p"/app/profile")}>
+      <.live_component
+        module={form_component_for_action(@live_action)}
+        id={@live_action}
+        title={@page_title}
+        action={@live_action}
+        client={@client}
+        social_profile={@social_profile}
+      />
+    </.modal>
+
+    <.modal :if={@social_profile_warning_modal} id="social_profile_warning_modal" show>
+      <div
+        tabindex="-1"
+        aria-hidden="true"
+        class=" overflow-y-auto overflow-x-hidden  z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+      >
+        <div class="relative  w-full max-w-2xl max-h-full">
+          <div class="relative bg-white rounded-lg shadow ">
+            <div class="p-4 md:p-5 space-y-4">
+              <p class="text-2xl  leading-snug font-semibold   text-gray-500 text-neutral-800">
+                Delete Profile
+              </p>
+              <p class="text-base leading-relaxed text-gray-500 text-neutral-600">
+                Are you sure you want to delete the social media profile
+                <span class="font-semibold text-neutral-800">
+                  <%= if @social_profile_name do %>
+                    "<%= @social_profile_name %>"
+                  <% else %>
+                    "Social Media Profile"
+                  <% end %>
+                </span>
+              </p>
+            </div>
+
+            <div class="flex items-center justify-end gap-6 pb-1 ">
+              <.button
+                variant="secondary"
+                data-modal-hide="default-modal"
+                phx-click="cancel_profile_delete"
+                type="button"
+              >
+                Cancel
+              </.button>
+
+              <.button
+                variant="destructive"
+                phx-click="confirm_profile_delete"
+                phx-value-id={@social_profile_id}
+                type="button"
+              >
+                Delete
+              </.button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </.modal>
     """
   end
 
@@ -100,6 +260,15 @@ defmodule PortalWeb.ClientLive.ProfileLive do
      |> assign(:client, updated_client)
      |> assign(:with_modal, false)
      |> put_flash(:info, "Profile updated successfully")
+     |> push_patch(to: ~p"/app/profile")}
+  end
+
+  def handle_info({:social_profiles_updated, updated_client}, socket) do
+    {:noreply,
+     socket
+     |> assign(:client, updated_client)
+     |> assign(:with_modal, false)
+     |> put_flash(:info, "Social Media profile updated successfully")
      |> push_patch(to: ~p"/app/profile")}
   end
 end
@@ -179,7 +348,8 @@ defmodule PortalWeb.ClientLive.ProfileBasics.Edit do
     <div>
       <.simple_form
         for={@form}
-        id="profile_form"
+        novalidate
+        id="profile_basics_form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
@@ -221,6 +391,267 @@ defmodule PortalWeb.ClientLive.ProfileBasics.Edit do
         <:actions>
           <div class="w-full grid place-content-end">
             <.button phx-disable-with="Updating...">Update profile</.button>
+          </div>
+        </:actions>
+      </.simple_form>
+    </div>
+    """
+  end
+end
+
+# shows the list of social profiles
+defmodule PortalWeb.ClientLive.SocialProfiles.Show do
+  @moduledoc """
+  Handles the rendering of existing social media profiles.
+  """
+
+  use PortalWeb, :live_component
+
+  import PortalWeb.UI.Button
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, :flash_message, "check this ")}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <div class="divide-y-[1px] divide-solid divide-brand/10">
+      <%= for profile <- @client.social_profiles do %>
+        <div class="flex items-center space-x-4 py-4">
+          <div class="flex-1">
+            <h4 class="text-lg font-semibold"><%= profile.name %></h4>
+            <a href={normalize_url(profile.url)} target="_blank" class="text-sm text-gray-500">
+              <%= profile.url %>
+            </a>
+          </div>
+          <div class="flex items-center gap-3">
+            <a
+              href={"/app/profile/socials/#{profile.id}/edit"}
+              class="min-h-[32px] max-h-[32px] stroke-neutral-700 min-w-[32px] max-w-[32px] p-2 grid place-content-center place-items-center rounded-full hover:bg-neutral-100 transition-all duration-150 ease-in-out "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="inherit"
+                class="size-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                />
+              </svg>
+            </a>
+            <button
+              type="button"
+              class="min-h-[32px] max-h-[32px] stroke-red-500 min-w-[32px] max-w-[32px] p-2 grid place-content-center place-items-center rounded-full hover:bg-neutral-100 transition-all duration-150 ease-in-out "
+              phx-click="delete_social_profile"
+              phx-value-id={profile.id}
+              phx-value-name={profile.name}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                height="24"
+                width="24"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="inherit"
+                className="h-[20px] w-[20px]"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    """
+  end
+
+  # Updated handle_event to correctly capture the "id" from the button click event
+  def handle_event("delete_social_profile", %{"id" => profile_id}, socket) do
+    # You can add logic here for deleting the profile
+    # For now, we'll just show a flash message
+    flash_message = "Profile with ID #{profile_id} deleted"
+
+    # Update the socket with the flash message
+    {:noreply, assign(socket, :flash_message, flash_message)}
+  end
+
+  defp normalize_url(url) do
+    if String.starts_with?(url, ["http://", "https://"]) do
+      url
+    else
+      "https://" <> url
+    end
+  end
+end
+
+# adds a social media profile to the list
+defmodule PortalWeb.ClientLive.ClientSocialProfiles.Add do
+  @moduledoc """
+    add one profile to the list of social profile
+  """
+  use PortalWeb, :live_component
+  import PortalWeb.UI.Button
+  alias Portal.Clients
+
+  alias Portal.Clients.SocialProfile
+
+  def update(%{client: _client, action: action} = assigns, socket) do
+    changeset = SocialProfile.changeset(%SocialProfile{}, %{})
+
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign(:action, action)
+     |> assign(:form, to_form(changeset, as: "social_profile_item"))}
+  end
+
+  def handle_event("validate", %{"social_profile_item" => profile_params}, socket) do
+    changeset =
+      Map.put(SocialProfile.changeset(%SocialProfile{}, profile_params), :action, :validate)
+
+    {:noreply,
+     socket
+     |> assign(:form, to_form(changeset, as: "social_profile_item"))}
+  end
+
+  def handle_event("save", %{"social_profile_item" => social_profile}, socket) do
+    changeset = SocialProfile.changeset(%SocialProfile{}, social_profile)
+
+    if changeset.valid? do
+      save_social_item(socket, socket.assigns.action, social_profile)
+    else
+      {:ok,
+       socket
+       |> assign(:form, to_form(Map.put(changeset, :action, :insert), as: "social_profile_item"))}
+    end
+  end
+
+  def save_social_item(socket, :add_social_profile, profile_item) do
+    case Clients.add_client_social_profile(socket.assigns.client, profile_item) do
+      {:ok, updated_client} ->
+        send(self(), {:social_profiles_updated, updated_client})
+        {:noreply, socket}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply,
+         socket
+         |> assign(:changeset, changeset)
+         |> put_flash(:error, "Failed to save social profile.")}
+    end
+  end
+
+  def render(assigns) do
+    ~H"""
+    <div>
+      <.simple_form
+        for={@form}
+        novalidate
+        id="social_profile_item"
+        phx-target={@myself}
+        phx-change="validate"
+        phx-submit="save"
+      >
+        <.input field={@form[:name]} type="text" label="Company name" required />
+        <.input field={@form[:url]} type="text" label="Company name" required />
+        <:actions>
+          <div class="w-full grid place-content-end">
+            <.button phx-disable-with="Updating...">Add handle</.button>
+          </div>
+        </:actions>
+      </.simple_form>
+    </div>
+    """
+  end
+end
+
+# edits a social media profile to the list
+defmodule PortalWeb.ClientLive.ClientSocialProfiles.Edit do
+  @moduledoc """
+    renders a form for handling the edit of social profiles
+  """
+  use PortalWeb, :live_component
+  import PortalWeb.UI.Button
+  alias Portal.Clients
+
+  alias Portal.Clients.SocialProfile
+
+  def update(%{action: action, social_profile: profile_item} = assigns, socket) do
+    changeset = SocialProfile.changeset(profile_item, %{})
+
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign(:action, action)
+     |> assign(:form, to_form(changeset, as: "social_profile_item"))}
+  end
+
+  def handle_event("validate", %{"social_profile_item" => profile_params}, socket) do
+    changeset =
+      Map.put(SocialProfile.changeset(%SocialProfile{}, profile_params), :action, :validate)
+
+    {:noreply,
+     socket
+     |> assign(:form, to_form(changeset, as: "social_profile_item"))}
+  end
+
+  def handle_event("save", %{"social_profile_item" => social_profile}, socket) do
+    changeset = SocialProfile.changeset(%SocialProfile{}, social_profile)
+
+    if changeset.valid? do
+      save_social_item(socket, socket.assigns.action, social_profile)
+    else
+      {:noreply,
+       socket
+       |> assign(:form, to_form(Map.put(changeset, :action, :insert), as: "social_profile_item"))}
+    end
+  end
+
+  def save_social_item(socket, :edit_social_profile, profile_item) do
+    case Clients.update_client_social_profile(socket.assigns.client, profile_item) do
+      {:ok, updated_client} ->
+        send(self(), {:social_profiles_updated, updated_client})
+        {:noreply, socket}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply,
+         socket
+         |> assign(:changeset, changeset)
+         |> put_flash(:error, "Failed to edit social profile.")}
+
+      {:error, :social_profile_not_found} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "item not found")}
+    end
+  end
+
+  def render(assigns) do
+    ~H"""
+    <div>
+      <.simple_form
+        for={@form}
+        novalidate
+        id="social_profile_item"
+        phx-target={@myself}
+        phx-change="validate"
+        phx-submit="save"
+      >
+        <.input field={@form[:id]} type="hidden" label="name of project" required />
+        <.input field={@form[:name]} type="text" label="name of project" required />
+        <.input field={@form[:url]} type="text" label="url for project" required />
+        <:actions>
+          <div class="w-full grid place-content-end">
+            <.button phx-disable-with="Updating...">Add handle</.button>
           </div>
         </:actions>
       </.simple_form>

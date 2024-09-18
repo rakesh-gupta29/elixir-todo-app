@@ -6,7 +6,7 @@ defmodule Portal.Clients do
 
   alias Portal.Repo
 
-  alias Portal.Clients.Client
+  alias Portal.Clients.{Client, SocialProfile}
 
   alias Portal.Clients.ClientToken
   alias Portal.Clients.ClientNotifier
@@ -216,5 +216,104 @@ defmodule Portal.Clients do
       :tokens,
       ClientToken.by_client_and_context_query(client, ["confirm"])
     )
+  end
+
+  @doc """
+  Takes the item for social profile and then adds it to the list of profiles for the client.
+  """
+  def add_client_social_profile(client, profile_item) do
+    # Create a new changeset for the incoming profile_item
+    new_profile_changeset = SocialProfile.changeset(%SocialProfile{}, profile_item)
+
+    if new_profile_changeset.valid? do
+      # Fetch the existing social profiles and append the new one
+      updated_profiles =
+        Enum.map(client.social_profiles, &Map.from_struct(&1)) ++
+          [Ecto.Changeset.apply_changes(new_profile_changeset)]
+
+      # Create a changeset to update the social profiles field of the client
+      client_changeset =
+        client
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_embed(:social_profiles, updated_profiles)
+
+      # Try to update the client with the new list of social profiles
+      case Repo.update(client_changeset) do
+        {:ok, updated_client} -> {:ok, updated_client}
+        {:error, changeset} -> {:error, changeset}
+      end
+    else
+      {:error, new_profile_changeset}
+    end
+  end
+
+  @doc """
+    Updates an existing social profile in the client's list of social profiles.
+  """
+  def update_client_social_profile(client, profile_item) do
+    profile_id = profile_item["id"] || profile_item[:id]
+
+    existing_profile =
+      Enum.find(client.social_profiles, fn profile -> profile.id == profile_id end)
+
+    if existing_profile do
+      updated_profile_changeset = SocialProfile.changeset(existing_profile, profile_item)
+
+      if updated_profile_changeset.valid? do
+        updated_profile = Ecto.Changeset.apply_changes(updated_profile_changeset)
+
+        updated_profiles =
+          Enum.map(client.social_profiles, fn profile ->
+            if profile.id == existing_profile.id do
+              updated_profile
+            else
+              profile
+            end
+          end)
+
+        updated_profiles_map = Enum.map(updated_profiles, &Map.from_struct/1)
+
+        client_changeset =
+          client
+          |> Ecto.Changeset.change(%{social_profiles: updated_profiles_map})
+          |> Client.social_profiles_changeset(%{social_profiles: updated_profiles_map})
+
+        case Repo.update(client_changeset) do
+          {:ok, updated_client} -> {:ok, updated_client}
+          {:error, changeset} -> {:error, changeset}
+        end
+      else
+        {:error, updated_profile_changeset}
+      end
+    else
+      {:error, :social_profile_not_found}
+    end
+  end
+
+  @doc """
+    Deletes a social profile from the client's list of social profiles.
+  """
+  def delete_social_profile(client, profile_id) do
+    existing_profile =
+      Enum.find(client.social_profiles, fn profile -> profile.id == profile_id end)
+
+    if existing_profile do
+      updated_profiles =
+        Enum.filter(client.social_profiles, fn profile -> profile.id != profile_id end)
+
+      updated_profiles_map = Enum.map(updated_profiles, &Map.from_struct/1)
+
+      client_changeset =
+        client
+        |> Ecto.Changeset.change(%{social_profiles: updated_profiles_map})
+        |> Client.social_profiles_changeset(%{social_profiles: updated_profiles_map})
+
+      case Repo.update(client_changeset) do
+        {:ok, updated_client} -> {:ok, updated_client}
+        {:error, changeset} -> {:error, changeset}
+      end
+    else
+      {:error, :social_profile_not_found}
+    end
   end
 end

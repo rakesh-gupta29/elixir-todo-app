@@ -34,7 +34,7 @@ defmodule PortalWeb.UI.Button do
       type={@type}
       class={
         classes([
-          "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center rounded-md text-sm font-medium  transition-colors focus-visible:outline-none ring-offset-1 focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
           @variant_class,
           "gap-1",
           "phx-submit-loading:opacity-75 btn",
@@ -52,7 +52,8 @@ defmodule PortalWeb.UI.Button do
     "primary" => "bg-brand text-white hover:bg-brand/90",
     "secondary" =>
       "bg-secondary text-secondary-foreground border-brand border-[1px] border-solid hover:bg-brand/10",
-    "destructive" => "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+    "destructive" =>
+      "bg-red-700 text-white hover:bg-opacity-90 border-none focus-visible:ring-red-500  outline-none ring-none ",
     "outline" =>
       "border border-input bg-none shadow-sm hover:bg-accent hover:text-accent-foreground",
     "ghost" => "hover:bg-accent hover:text-accent-foreground",

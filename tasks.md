@@ -23,6 +23,11 @@
 - write test cases for common functions like url validation and other things.
 - read more regarding assigns v/s temporary_assigns and when should we use what
 - improve the logic to validate the year in the profile form
+- suppose each request is pushed into its beam process then how does the GC work to collect the garbage.s
+- how does the valdiations and changesets works with embedded schemas.
+- when the pattern matching or something throws an error then what does happen? how does the gc handle that.
+- how does the profiler work and we can check where the time is being taken in the app.
+- change the text field in the social media handles for client profile to be the select dropdown.
 
 ## Improvements
 

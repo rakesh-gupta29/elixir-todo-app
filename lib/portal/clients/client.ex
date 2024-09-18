@@ -5,6 +5,8 @@ defmodule Portal.Clients.Client do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Portal.Clients.SocialProfile
+
   schema "clients" do
     field :name, :string
     field :email, :string
@@ -20,7 +22,9 @@ defmodule Portal.Clients.Client do
     field :is_verified, :boolean, default: false
     field :logo_url, :string
     field :tagline, :string
-    field :social_profiles, :map, default: %{}
+
+    embeds_many :social_profiles, SocialProfile, on_replace: :delete
+
     field :locations, :map, default: %{}
 
     # Associations
@@ -56,6 +60,16 @@ defmodule Portal.Clients.Client do
     |> validate_year(:founded_year)
   end
 
+  def social_profiles_changeset(client, params) do
+    client
+    |> cast(params, [])
+    # it will look for embed_many directives and check for the schemas to refer
+    |> cast_embed(:social_profiles,
+      with: &Portal.Clients.SocialProfile.changeset/2,
+      required: true
+    )
+  end
+
   defp validate_year(changeset, field) do
     current_year = Date.utc_today().year
 
@@ -84,12 +98,6 @@ defmodule Portal.Clients.Client do
     changeset
     |> validate_required([:name])
     |> validate_length(:name, min: 2, max: 80, message: "should be between 2 and 80 characters")
-  end
-
-  def something(client, attrs) do
-    client
-    |> cast(attrs, [:name, :email])
-    |> validate_required([:name, :email])
   end
 
   defp validate_website(changeset, field) do
@@ -210,5 +218,41 @@ defmodule Portal.Clients.Client do
     |> cast(attrs, [:password])
     |> validate_confirmation(:password, message: "passwords do not match")
     |> validate_password(opts)
+  end
+end
+
+defmodule Portal.Clients.SocialProfile do
+  @moduledoc false
+
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  embedded_schema do
+    field :name, :string
+    field :url, :string
+  end
+
+  def changeset(social_profile, params) do
+    social_profile
+    |> cast(params, [:name, :url])
+    |> validate_required([:name, :url])
+    |> validate_length(:name, min: 2, max: 30, message: "should be between 2 and 30 characters")
+    |> validate_url(:url)
+  end
+
+  defp validate_url(changeset, field) do
+    changeset
+    |> validate_change(field, fn _, url ->
+      if valid_url?(url) do
+        []
+      else
+        [{field, "invalid URL"}]
+      end
+    end)
+  end
+
+  defp valid_url?(url) do
+    url_regex = ~r/^(https?:\/\/)?([a-zA-Z0-9_\-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9_\-\.]*)*\/?$/
+    Regex.match?(url_regex, url)
   end
 end

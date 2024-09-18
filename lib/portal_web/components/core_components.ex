@@ -84,13 +84,13 @@ defmodule PortalWeb.CoreComponents do
               <div class="flex justify-between gap-6">
                 <span class="flex-1 line-clamp-1"><%= @modal_title %></span>
                 <button
-                phx-click={JS.exec("data-cancel", to: "##{@id}")}
-                type="button"
-                class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
-                aria-label={gettext("close")}
-              >
-                <.icon name="hero-x-mark-solid" class="h-5 w-5" />
-              </button>
+                  phx-click={JS.exec("data-cancel", to: "##{@id}")}
+                  type="button"
+                  class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
+                  aria-label={gettext("close")}
+                >
+                  <.icon name="hero-x-mark-solid" class="h-5 w-5" />
+                </button>
               </div>
               <div id={"#{@id}-content"}>
                 <%= render_slot(@inner_block) %>
@@ -129,7 +129,7 @@ defmodule PortalWeb.CoreComponents do
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
-        "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
+        "fixed top-2 right-2 mr-2 z-[99999] w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
@@ -350,6 +350,14 @@ defmodule PortalWeb.CoreComponents do
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
       <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
+  end
+
+  def input(%{type: "hidden"} = assigns) do
+    ~H"""
+    <div>
+      <textarea id={@id} name={@name} class="hidden" {@rest}><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
     </div>
     """
   end
