@@ -5,7 +5,8 @@ defmodule Portal.Clients.Client do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Portal.Clients.SocialProfile
+  alias Portal.Client.SocialProfile
+  alias Portal.Client.Location
 
   schema "clients" do
     field :name, :string
@@ -24,8 +25,7 @@ defmodule Portal.Clients.Client do
     field :tagline, :string
 
     embeds_many :social_profiles, SocialProfile, on_replace: :delete
-
-    field :locations, :map, default: %{}
+    embeds_many :locations, Location, on_replace: :delete
 
     # Associations
     belongs_to :manpower_size, Portal.ManpowerRanges.ManpowerRange
@@ -65,7 +65,17 @@ defmodule Portal.Clients.Client do
     |> cast(params, [])
     # it will look for embed_many directives and check for the schemas to refer
     |> cast_embed(:social_profiles,
-      with: &Portal.Clients.SocialProfile.changeset/2,
+      with: &Portal.Client.SocialProfile.changeset/2,
+      required: true
+    )
+  end
+
+  def locations_changeset(client, params) do
+    client
+    |> cast(params, [])
+    # it will look for embed_many directives and check for the schemas to refer
+    |> cast_embed(:locations,
+      with: &Portal.Client.Location.changeset/2,
       required: true
     )
   end
@@ -221,7 +231,7 @@ defmodule Portal.Clients.Client do
   end
 end
 
-defmodule Portal.Clients.SocialProfile do
+defmodule Portal.Client.SocialProfile do
   @moduledoc false
 
   use Ecto.Schema
@@ -241,6 +251,51 @@ defmodule Portal.Clients.SocialProfile do
   end
 
   defp validate_url(changeset, field) do
+    changeset
+    |> validate_change(field, fn _, url ->
+      if valid_url?(url) do
+        []
+      else
+        [{field, "invalid URL"}]
+      end
+    end)
+  end
+
+  defp valid_url?(url) do
+    url_regex = ~r/^(https?:\/\/)?([a-zA-Z0-9_\-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9_\-\.]*)*\/?$/
+    Regex.match?(url_regex, url)
+  end
+end
+
+defmodule Portal.Client.Location do
+  @moduledoc false
+
+  use Ecto.Schema
+
+  import Ecto.Changeset
+
+  embedded_schema do
+    field :name, :string
+    field :city, :string
+    field :address, :string
+    field :map_url, :string, default: ""
+  end
+
+  def changeset(location_params, params) do
+    location_params
+    |> cast(params, [:name, :city, :address, :map_url])
+    |> validate_required([:name, :city, :address])
+    |> validate_location_name(:name)
+    |> validate_map_url(:map_url)
+  end
+
+  defp validate_location_name(changeset, field) do
+    changeset
+    |> validate_length(field, min: 2, message: "min length should be 10")
+  end
+
+  # we can make the calls here to check that the field is in the apple or goggle maps
+  def validate_map_url(changeset, field) do
     changeset
     |> validate_change(field, fn _, url ->
       if valid_url?(url) do

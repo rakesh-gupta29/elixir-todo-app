@@ -6,10 +6,12 @@ defmodule Portal.Clients do
 
   alias Portal.Repo
 
-  alias Portal.Clients.{Client, SocialProfile}
+  alias Portal.Clients.Client
+  alias Portal.Client.SocialProfile
 
   alias Portal.Clients.ClientToken
   alias Portal.Clients.ClientNotifier
+  alias Portal.Client.Location
 
   # authentication
   def create_client_account_changeset(%Client{} = client, attrs \\ %{}) do
@@ -225,6 +227,7 @@ defmodule Portal.Clients do
     # Create a new changeset for the incoming profile_item
     new_profile_changeset = SocialProfile.changeset(%SocialProfile{}, profile_item)
 
+    # why do we need to change this to map here. like a list of structs to a map
     if new_profile_changeset.valid? do
       # Fetch the existing social profiles and append the new one
       updated_profiles =
@@ -314,6 +317,73 @@ defmodule Portal.Clients do
       end
     else
       {:error, :social_profile_not_found}
+    end
+  end
+
+  # ===================================================== Locations ============================================================
+
+  def add_location(client, item) do
+    new_locations_changeset = Location.changeset(%Location{}, item)
+
+    if new_locations_changeset.valid? do
+      updated_locations =
+        Enum.map(client.locations, &Map.from_struct(&1)) ++
+          [Ecto.Changeset.apply_changes(new_locations_changeset)]
+
+      client_changeset =
+        client
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_embed(:locations, updated_locations)
+
+      case Repo.update(client_changeset) do
+        {:ok, updated_client} -> {:ok, updated_client}
+        {:error, changeset} -> {:error, changeset}
+      end
+    else
+      {:error, new_locations_changeset}
+    end
+  end
+
+  @doc """
+    Updates an existing location for client
+  """
+  def update_location(client, location_item) do
+    location_id = location_item["id"] || location_item[:id]
+
+    exisiting_location =
+      Enum.find(client.locations, fn location -> location.id == location_id end)
+
+    if exisiting_location do
+      update_locations_changeset = Location.changeset(exisiting_location, location_item)
+
+      if update_locations_changeset.valid? do
+        updated_location = Ecto.Changeset.apply_changes(update_locations_changeset)
+
+        updated_locations =
+          Enum.map(client.locations, fn location ->
+            if location.id == exisiting_location.id do
+              updated_location
+            else
+              location
+            end
+          end)
+
+        updated_locations_map = Enum.map(updated_locations, &Map.from_struct/1)
+
+        client_changeset =
+          client
+          |> Ecto.Changeset.change(%{locations: updated_locations_map})
+          |> Client.locations_changeset(%{locations: updated_locations_map})
+
+        case Repo.update(client_changeset) do
+          {:ok, updated_client} -> {:ok, updated_client}
+          {:error, changeset} -> {:error, changeset}
+        end
+      else
+        {:error, update_locations_changeset}
+      end
+    else
+      {:error, :location_not_found}
     end
   end
 end

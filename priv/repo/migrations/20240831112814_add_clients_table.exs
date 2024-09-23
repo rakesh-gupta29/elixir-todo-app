@@ -25,7 +25,7 @@ defmodule Portal.Repo.Migrations.AddClientsTable do
       add :industry_id, references(:industries, on_delete: :nilify_all)
 
       add :social_profiles, :jsonb, default: "[]"
-      add :locations, :map, default: %{}
+      add :locations, :jsonb, default: "[]"
 
       timestamps(type: :utc_datetime)
     end

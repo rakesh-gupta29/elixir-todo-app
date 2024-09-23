@@ -28,6 +28,8 @@
 - when the pattern matching or something throws an error then what does happen? how does the gc handle that.
 - how does the profiler work and we can check where the time is being taken in the app.
 - change the text field in the social media handles for client profile to be the select dropdown.
+- how can we make a utils library in which we will be making the common fnctions of validation and other things
+- how do I add the validations for the array of list in the clients schema. like the social profiles have to the array of social profiles only
 
 ## Improvements
 

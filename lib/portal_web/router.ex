@@ -92,6 +92,8 @@ defmodule PortalWeb.Router do
       live "/profile/basics/edit", ClientLive.ProfileLive, :edit_profile_basics
       live "/profile/socials/add", ClientLive.ProfileLive, :add_social_profile
       live "/profile/socials/:id/edit", ClientLive.ProfileLive, :edit_social_profile
+      live "/profile/locations/add", ClientLive.ProfileLive, :add_location
+      live "/profile/locations/:id/edit", ClientLive.ProfileLive, :edit_location
     end
   end
 
