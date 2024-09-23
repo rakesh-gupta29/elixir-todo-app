@@ -1,0 +1,42 @@
+<div class="w-container blade-top-padding">
+  <span class="capitalize text-3xl font-semibold text-neutral-800">
+    <%= @client.name %>
+  </span>
+  <div class="max-w-4xl grid grid-cols-2 gap-10">
+    <div class="grid gap-0.5 pt-4 text-neutral-800">
+      <span>Email: <%= @client.email %></span>
+      <span>Website: <%= @client.website %></span>
+      <span>Founded: <%= @client.founded_year %></span>
+    </div>
+    <div class="flex flex-col gap-1 text-neutral-800">
+      <span>Tagline: <%= @client.tagline %></span>
+      <span>Description: <%= @client.description %></span>
+    </div>
+  </div>
+  <div class="pt-6 max-w-3xl">
+    <span class="font-medium text-lg">Social Profiles</span>
+    <div class="flex gap-2 pt-2">
+      <%= for elem <- @client.social_profiles do %>
+      <article
+        class="bg-neutral-50 w-full grid gap-1 rounded-lg border-[1px] border-solid border-neutral-200 px-4 py-2"
+      >
+        <span class="text-lg font-medium"> <%= elem.name %></span>
+        <span class="text-neutral-800"> <%= elem.url %></span>
+      </article>
+      <% end %>
+    </div>
+  </div>
+  <div class="pt-8 max-w-3xl">
+    <span class="font-medium text-lg">Locations</span>
+    <div class="flex gap-2 pt-2">
+      <%= for elem <- @client.locations do %>
+      <article
+        class="bg-neutral-50 w-full grid gap-1 rounded-lg border-[1px] border-solid border-neutral-200 px-4 py-2"
+      >
+        <span class="text-lg font-medium"> <%= elem.name %></span>
+        <span class="text-neutral-800"> <%= elem.address %></span>
+      </article>
+      <% end %>
+    </div>
+  </div>
+</div>

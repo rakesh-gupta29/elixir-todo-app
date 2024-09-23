@@ -112,6 +112,7 @@ defmodule PortalWeb.Router do
     get "/help-center", PortalWeb.PageController, :help_center
     live "/contact", PortalWeb.Live.ContactLive, :new
     live "/trending", PortalWeb.Live.Jobs.TrendingLive, :new
+    get "/company/:id", PortalWeb.PageController, :company_microsite
 
     # instructions for sending and receiving the email verification token
     live_session :current_client,

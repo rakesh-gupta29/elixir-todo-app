@@ -29,6 +29,7 @@
 - how does the profiler work and we can check where the time is being taken in the app.
 - change the text field in the social media handles for client profile to be the select dropdown.
 - how can we make a utils library in which we will be making the common fnctions of validation and other things
+- add the form for adding the manpower ranges and other things in the porfile for the client
 - how do I add the validations for the array of list in the clients schema. like the social profiles have to the array of social profiles only
 
 ## Improvements

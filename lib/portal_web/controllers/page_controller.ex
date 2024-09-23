@@ -18,7 +18,7 @@ defmodule PortalWeb.PageController do
     description: "Welcome to portal which promotes sensible hiring",
     og_image: "/og_image.jpg",
     script_file: nil,
-    withLayout: true
+    withLayout: false
   }
 
   def home(conn, _params) do
@@ -58,13 +58,43 @@ defmodule PortalWeb.PageController do
     render_html_page(conn, :help_center, %{title: "help center"})
   end
 
-  def render_html_page(conn, template_file, opts \\ %{}) do
+  def company_microsite(conn, %{"id" => id_param}) do
+    case Integer.parse(id_param) do
+      {id, ""} ->
+        client = Portal.Repo.get(Portal.Clients.Client, id)
+
+        if client do
+          assigns = %{client: client}
+
+          render_html_page(
+            conn,
+            :client_microsite,
+            %{withLayout: false, title: "client microsite"},
+            assigns
+          )
+        else
+          conn
+          |> put_status(:not_found)
+          |> assign(:withLayout, false)
+          |> render(PortalWeb.ErrorHTML, "404.html")
+        end
+
+      _ ->
+        conn
+        |> put_status(:not_found)
+        |> assign(:withLayout, false)
+        |> render(PortalWeb.ErrorHTML, "404.html")
+    end
+  end
+
+  def render_html_page(conn, template_file, opts \\ %{}, assigns \\ %{}) do
     options = Map.merge(@default_options, opts)
 
     conn
     |> assign_metadata(options.title, options.description, options.og_image)
+    |> assign(:withLayout, options.withLayout)
     |> maybe_assign_script_file(options.script_file)
-    |> render(template_file)
+    |> render(template_file, assigns)
   end
 
   def assign_metadata(conn, title, desc, og_image) do
