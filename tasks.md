@@ -31,6 +31,10 @@
 - how can we make a utils library in which we will be making the common fnctions of validation and other things
 - add the form for adding the manpower ranges and other things in the porfile for the client
 - how do I add the validations for the array of list in the clients schema. like the social profiles have to the array of social profiles only
+- add async assign for client microsite. it should be loaded lazily
+- location needs to be meged here. like how can we embed the locations and educations so that we will be able to filter the list as per some parameters.
+- skills will be a good target for introducing full text search and include the id of the skills. will allow the filtering.
+- implement a hook to focus on first input element with error.
 
 ## Improvements
 

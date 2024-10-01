@@ -136,7 +136,6 @@ defmodule PortalWeb.ClientLive.ProfileLive do
     ~H"""
     <div class="pb-20 bg-brand/5">
       <div class=" pt-20 pb-10">
-        <%= @client.id %>
         <div class="w-container grid grid-cols-3">
           <div class="col-span-1">
             <div class="sticky top-24  pb-10 grid gap-2 pt-6">

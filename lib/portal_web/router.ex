@@ -88,6 +88,9 @@ defmodule PortalWeb.Router do
       live "/", ClientLive.HomeLive, :new
       live "/help", ClientLive.SupportTicketLive, :new
       live "/jobs", ClientLive.JobsLive, :new
+      live "/jobs/new", ClientLive.CreateJobLive, :new
+      live "/jobs/settings", ClientLive.JobsSettingsLive, :new
+
       live "/profile", ClientLive.ProfileLive, :new
       live "/profile/basics/edit", ClientLive.ProfileLive, :edit_profile_basics
       live "/profile/socials/add", ClientLive.ProfileLive, :add_social_profile
@@ -113,6 +116,9 @@ defmodule PortalWeb.Router do
     live "/contact", PortalWeb.Live.ContactLive, :new
     live "/trending", PortalWeb.Live.Jobs.TrendingLive, :new
     get "/company/:id", PortalWeb.PageController, :company_microsite
+    live "/jobs", PortalWeb.JobsLive.ListJobs, :new
+    get "/jobs/:id", PortalWeb.PageController, :job_details
+    live "/jobs/:id/apply", PortalWeb.JobsLive.ApplyOnJob, :new
 
     # instructions for sending and receiving the email verification token
     live_session :current_client,

@@ -55,6 +55,9 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+       boxShadow: {
+        'tab_border': '0 1px 0 #cbd5e1;',
+       }
     },
   },
   plugins: [

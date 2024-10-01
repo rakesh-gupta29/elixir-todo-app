@@ -28,6 +28,7 @@
   </div>
   <div class="pt-8 max-w-3xl">
     <span class="font-medium text-lg">Locations</span>
+
     <div class="flex gap-2 pt-2">
       <%= for elem <- @client.locations do %>
       <article
@@ -38,5 +39,22 @@
       </article>
       <% end %>
     </div>
+  </div>
+
+  <div class="pt-8 max-w-3xl">
+    <span class="font-medium text-lg">Jobs </span>
+
+    <%= if Enum.empty?(@jobs) do %>
+    <div class="py-4 text-gray-500">
+      <p><%= @no_jobs_message %></p>
+    </div>
+    <% else%> <%= for elem <- @jobs do %>
+    <article
+      class="bg-neutral-50 w-full grid gap-1 rounded-lg border-[1px] border-solid border-neutral-200 px-4 py-2"
+    >
+      <span class="text-lg font-medium"> <%= elem.title %></span>
+      <span class="text-neutral-800"> <%= elem.description %></span>
+    </article>
+    <% end %> <% end %>
   </div>
 </div>

@@ -58,32 +58,90 @@ defmodule PortalWeb.PageController do
     render_html_page(conn, :help_center, %{title: "help center"})
   end
 
-  def company_microsite(conn, %{"id" => id_param}) do
-    case Integer.parse(id_param) do
-      {id, ""} ->
-        client = Portal.Repo.get(Portal.Clients.Client, id)
+  def company_microsite(conn, params) do
+    case Map.fetch(params, "id") do
+      {:ok, id_param} when id_param != "" ->
+        case Integer.parse(id_param) do
+          {id, ""} ->
+            case Portal.Repo.get(Portal.Clients.Client, id) do
+              nil ->
+                conn
+                |> put_status(:not_found)
+                |> assign(:withLayout, false)
+                |> render(PortalWeb.ErrorHTML, "404.html")
 
-        if client do
-          assigns = %{client: client}
+              client ->
+                jobs = Portal.Jobs.get_all_jobs(id)
 
-          render_html_page(
-            conn,
-            :client_microsite,
-            %{withLayout: false, title: "client microsite"},
-            assigns
-          )
-        else
-          conn
-          |> put_status(:not_found)
-          |> assign(:withLayout, false)
-          |> render(PortalWeb.ErrorHTML, "404.html")
+                assigns = %{client: client, jobs: jobs}
+
+                if Enum.empty?(jobs) do
+                  render_html_page(
+                    conn,
+                    :client_microsite,
+                    %{withLayout: false, title: "Client Microsite - No Jobs Available"},
+                    Map.put(assigns, :no_jobs_message, "No jobs available for this client.")
+                  )
+                else
+                  render_html_page(
+                    conn,
+                    :client_microsite,
+                    %{withLayout: false, title: "Client Microsite"},
+                    assigns
+                  )
+                end
+            end
+
+          _ ->
+            conn
+            |> put_status(:bad_request)
+            |> assign(:withLayout, false)
+            |> render(PortalWeb.ErrorHTML, "400.html")
         end
 
       _ ->
         conn
-        |> put_status(:not_found)
+        |> put_status(:bad_request)
         |> assign(:withLayout, false)
-        |> render(PortalWeb.ErrorHTML, "404.html")
+        |> render(PortalWeb.ErrorHTML, "400.html")
+    end
+  end
+
+  def job_details(conn, params) do
+    case Map.fetch(params, "id") do
+      {:ok, id} when id != "" ->
+        case Integer.parse(id) do
+          {id, ""} ->
+            case Portal.Repo.get(Portal.Jobs.Job, id) do
+              nil ->
+                conn
+                |> put_status(:not_found)
+                |> assign(:withLayout, false)
+                |> render(PortalWeb.ErrorHTML, "404.html")
+
+              job ->
+                assigns = %{jobs: job}
+
+                render_html_page(
+                  conn,
+                  :job_detail,
+                  %{withLayout: false, title: "Job detail page"},
+                  assigns
+                )
+            end
+
+          _ ->
+            conn
+            |> put_status(:bad_request)
+            |> assign(:withLayout, false)
+            |> render(PortalWeb.ErrorHTML, "job_invalid.html")
+        end
+
+      _ ->
+        conn
+        |> put_status(:bad_request)
+        |> assign(:withLayout, false)
+        |> render(PortalWeb.ErrorHTML, "job_invalid.html")
     end
   end
 
