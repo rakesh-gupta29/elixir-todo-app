@@ -34,7 +34,7 @@ defmodule PortalWeb.UI.Button do
       type={@type}
       class={
         classes([
-          "inline-flex items-center justify-center rounded-md text-sm font-medium  transition-colors focus-visible:outline-none ring-offset-1 focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center rounded-full text-sm font-medium  transition-colors focus-visible:outline-none ring-offset-1 focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
           @variant_class,
           "gap-1",
           "phx-submit-loading:opacity-75 btn",
@@ -62,8 +62,8 @@ defmodule PortalWeb.UI.Button do
 
   @button_sizes %{
     "default" => "h-10 px-4 py-2",
-    "sm" => "h-8 rounded-md px-3 text-sm",
-    "lg" => "h-11 rounded-md px-8",
+    "sm" => "h-8 rounded-full px-3 text-sm",
+    "lg" => "h-11 rounded-full px-8",
     "icon" => "h-10 w-10"
   }
   def button_variant(variant \\ "primary", size \\ "default") do

@@ -33,6 +33,10 @@ defmodule Portal.Jobs.Job do
     timestamps(type: :utc_datetime)
   end
 
+  # need company name here too
+  # need the notice period negotiable thing too like is the notice period negotiable or not
+  # locations for the id, need to be an array of the locations
+
   @employment_types ["full time", "remote", "contract", "part time", "freelance", "others"]
   @currencies ["INR", "USD"]
   @statuses ["open", "closed", "paused"]

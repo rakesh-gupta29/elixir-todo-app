@@ -138,3 +138,41 @@ a {
 .test-btn {
   @apply text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800;
 }
+
+/* css loader. do not change anything in this block */
+.loader {
+  height: 15px;
+  aspect-ratio: 6;
+  display: flex;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  flex: 1;
+  padding-left: calc(100% / 6);
+  background: radial-gradient(
+      closest-side at calc(100% / 3) 50%,
+      #001240 90%,
+      #0000
+    )
+    0/75% 100% content-box;
+  animation: l20 2s infinite;
+}
+.loader:after {
+  --_s: -1;
+}
+@keyframes l20 {
+  0% {
+    transform: scale(var(--_s, 1)) translate(0) rotate(0);
+  }
+  25% {
+    transform: scale(var(--_s, 1)) translate(-25%) rotate(0);
+  }
+  50% {
+    transform: scale(var(--_s, 1)) translate(-25%) rotate(1turn);
+  }
+  75%,
+  100% {
+    transform: scale(var(--_s, 1)) translate(0) rotate(1turn);
+  }
+}

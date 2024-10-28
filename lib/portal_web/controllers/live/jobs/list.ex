@@ -1,4 +1,4 @@
-defmodule PortalWeb.JobsLive.ApplyOnJob do
+defmodule PortalWeb.JobsLive.ListJobs do
   @moduledoc """
   this page will list all the jobs.
   will include the details filter along with search to get the matching list
@@ -6,7 +6,7 @@ defmodule PortalWeb.JobsLive.ApplyOnJob do
   use PortalWeb, :live_view
 
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, socket |> assign(withLayout: false)}
   end
 
   def render(assigns) do

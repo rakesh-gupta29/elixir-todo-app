@@ -117,8 +117,7 @@ defmodule PortalWeb.Router do
     live "/trending", PortalWeb.Live.Jobs.TrendingLive, :new
     get "/company/:id", PortalWeb.PageController, :company_microsite
     live "/jobs", PortalWeb.JobsLive.ListJobs, :new
-    get "/jobs/:id", PortalWeb.PageController, :job_details
-    live "/jobs/:id/apply", PortalWeb.JobsLive.ApplyOnJob, :new
+    live "/jobs/:id", PortalWeb.JobsLive.JobDetails, :new
 
     # instructions for sending and receiving the email verification token
     live_session :current_client,

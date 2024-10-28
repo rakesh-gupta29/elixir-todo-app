@@ -343,8 +343,8 @@ defmodule PortalWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 min-h-[6rem]",
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          "mt-2 block w-full rounded-lg !text-base  !leading-normal text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 min-h-[6rem]",
+          @errors == [] && "border-[#EBEBEB] focus:border-[#8F8F8F]",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -514,6 +514,23 @@ defmodule PortalWeb.CoreComponents do
           <dd class="text-zinc-700"><%= render_slot(item) %></dd>
         </div>
       </dl>
+    </div>
+    """
+  end
+
+  @doc """
+    renders a global loader.
+  """
+  attr :withLogo, :any, required: false, default: false
+
+  def loader(assigns) do
+    ~H"""
+    <div class="grid place-content-center place-items-center py-6 gap-10">
+      <div class="h-20 w-20 rounded-full bg-brand grid place-content-center place-items-center ">
+        <img loading="eager" src={~p"/images/logo_light.svg"} class="h-10" alt="Logo for
+    the portal" />
+      </div>
+      <div class="loader"></div>
     </div>
     """
   end

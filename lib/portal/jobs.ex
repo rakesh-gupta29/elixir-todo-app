@@ -13,6 +13,10 @@ defmodule Portal.Jobs do
     |> Repo.all()
   end
 
+  def job_with_id(id) do
+    Job |> Repo.get(id)
+  end
+
   def create_job(attrs \\ %{}) do
     %Job{}
     |> Job.changeset(attrs)
