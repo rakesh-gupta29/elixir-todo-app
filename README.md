@@ -1,4 +1,6 @@
-# Portal
+# CRUD App
+
+trying a functional programming language.
 
 To start your Phoenix server:
 
